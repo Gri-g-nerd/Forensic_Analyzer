@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sherlock — Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Sherlock<span>.</span></div>
+    <div class="user-info">
+      <span id="userEmail" class="mono">Loading…</span>
+      <a href="upload.html" class="link">+ New report</a>
+      <button class="btn" onclick="logout()">Log out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <p class="section-title">Case files</p>
+    <div id="casesList" class="empty-state">Loading cases…</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    const firebaseConfig = {
+     apiKey: "AIzaSyDbtvqcuPXVlBhgmM0mJertYGTXHbEJBXg",
+  authDomain: "forensic-analyzer08.firebaseapp.com",
+  projectId: "forensic-analyzer08",
+  storageBucket: "forensic-analyzer08.firebasestorage.app",
+  messagingSenderId: "159726068320",
+  appId: "1:159726068320:web:ea30cbcc7fe9801a885905"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById("userEmail").innerText = user.email;
+        loadCases();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    window.logout = () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    };
+
+    function riskClass(level) {
+      if (!level) return "";
+      const l = level.toLowerCase();
+      if (l === "low") return "risk-low";
+      if (l === "medium") return "risk-medium";
+      if (l === "high") return "risk-high";
+      return "";
+    }
+
+    async function loadCases() {
+      const idToken = await currentUser.getIdToken();
+      const res = await fetch("http://127.0.0.1:5000/api/cases", {
+        headers: { "Authorization": "Bearer " + idToken }
+      });
+      const cases = await res.json();
+
+      const container = document.getElementById("casesList");
+      if (cases.length === 0) {
+        container.innerHTML = '<div class="empty-state">No reports uploaded yet. Start by adding one.</div>';
+        return;
+      }
+
+      container.className = "";
+      container.innerHTML = cases.map((c, i) => `
+        <div class="case status-${c.status}" style="animation-delay:${i * 0.08}s">
+          <div class="case-top">
+            <span class="case-name">${c.fileName}</span>
+            <span class="case-id mono">#${c.id.slice(0, 8)}</span>
+          </div>
+          <div class="case-status">${c.status}</div>
+          ${c.status === "uploaded" ? `<button class="btn btn-primary" style="margin-top:12px" onclick="analyzeCase('${c.id}')">Analyze report</button>` : ""}
+          ${c.riskLevel ? `<div class="risk-badge ${riskClass(c.riskLevel)}">${c.riskLevel} risk — ${c.riskScore}</div>` : ""}
+          ${c.summary ? `<div class="case-summary">${c.summary}</div>` : ""}
+          ${c.timeline ? `<ul class="case-timeline">${c.timeline.map(t => `<li>${t}</li>`).join("")}</ul>` : ""}
+        </div>
+      `).join("");
+    }
+
+    window.analyzeCase = async (caseId) => {
+      const idToken = await currentUser.getIdToken();
+      const btn = event.target;
+      btn.innerText = "Analyzing…";
+      btn.disabled = true;
+
+      const res = await fetch(`http://127.0.0.1:5000/api/analyze/${caseId}`, {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + idToken }
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        loadCases();
+      } else {
+        alert("Error: " + data.error);
+        btn.innerText = "Analyze report";
+        btn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

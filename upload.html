@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sherlock — Upload Report</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Sherlock<span>.</span></div>
+    <div class="user-info">
+      <a href="dashboard.html" class="link">← Back to dashboard</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <p class="section-title">Upload forensic report</p>
+    <div class="upload-box">
+      <input type="file" id="fileInput" accept="application/pdf"><br>
+      <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
+      <p class="status-msg" id="status"></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDbtvqcuPXVlBhgmM0mJertYGTXHbEJBXg",
+  authDomain: "forensic-analyzer08.firebaseapp.com",
+  projectId: "forensic-analyzer08",
+  storageBucket: "forensic-analyzer08.firebasestorage.app",
+  messagingSenderId: "159726068320",
+  appId: "1:159726068320:web:ea30cbcc7fe9801a885905"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    window.uploadFile = async () => {
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) { document.getElementById("status").innerText = "Pick a file first."; return; }
+      if (!currentUser) { document.getElementById("status").innerText = "Not logged in."; return; }
+
+      document.getElementById("status").innerText = "Uploading…";
+
+      try {
+        const idToken = await currentUser.getIdToken();
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("http://127.0.0.1:5000/api/upload", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + idToken },
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById("status").innerText = "Uploaded — case #" + data.caseId.slice(0, 8);
+          setTimeout(() => window.location.href = "dashboard.html", 1200);
+        } else {
+          document.getElementById("status").innerText = "Error: " + data.error;
+        }
+      } catch (e) {
+        document.getElementById("status").innerText = "Error: " + e.message;
+      }
+    };
+  </script>
+</body>
+</html>

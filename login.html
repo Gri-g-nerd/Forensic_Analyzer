@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sherlock — Investigator Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg class="fingerprint-deco" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#B33A3A" stroke-width="1.5">
+      <path d="M100 30 C60 30 30 60 30 100 C30 140 60 170 100 170" />
+      <path d="M100 45 C70 45 45 70 45 100 C45 130 70 155 100 155" />
+      <path d="M100 60 C80 60 60 80 60 100 C60 120 80 140 100 140" />
+      <path d="M100 75 C90 75 75 90 75 100 C75 110 90 125 100 125" />
+      <path d="M100 30 C140 30 170 60 170 100 C170 140 140 170 100 170" stroke-dasharray="4 6" />
+      <circle cx="100" cy="100" r="4" fill="#B33A3A" stroke="none" />
+    </g>
+  </svg>
+
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h1>Sherlock</h1>
+      <p class="sub">Digital forensics report analyzer</p>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="investigator@case.gov">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••">
+      </div>
+
+      <div class="auth-actions">
+        <button class="btn" onclick="signup()">Sign up</button>
+        <button class="btn btn-primary" onclick="login()">Log in</button>
+      </div>
+
+      <p class="status-msg" id="status"></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword,
+      signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDbtvqcuPXVlBhgmM0mJertYGTXHbEJBXg",
+  authDomain: "forensic-analyzer08.firebaseapp.com",
+  projectId: "forensic-analyzer08",
+  storageBucket: "forensic-analyzer08.firebasestorage.app",
+  messagingSenderId: "159726068320",
+  appId: "1:159726068320:web:ea30cbcc7fe9801a885905"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.signup = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => document.getElementById("status").innerText = "Account created — log in above.")
+        .catch(e => document.getElementById("status").innerText = e.message);
+    };
+
+    window.login = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then(async (cred) => {
+          const idToken = await cred.user.getIdToken();
+          localStorage.setItem("idToken", idToken);
+          window.location.href = "dashboard.html";
+        })
+        .catch(e => document.getElementById("status").innerText = e.message);
+    };
+  </script>
+</body>
+</html>

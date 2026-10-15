@@ -1,0 +1,38 @@
+# Secrets (NEVER commit these)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+firebase-credentials.json
+credentials.json
+.aws/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+env/
+.pytest_cache/
+instance/
+
+# Node (if used for frontend tooling)
+node_modules/
+
+# Uploads / local data
+uploads/
+*.log
+
+# Firebase local files
+.firebase/
+firebase-debug.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

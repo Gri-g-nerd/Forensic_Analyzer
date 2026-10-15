@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Archivo:wght@400;500;600;700&family=Archivo+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #1A1512;
+  --panel: #241D18;
+  --panel-border: #3A2F27;
+  --text: #D9CBB2;
+  --text-dim: #A0907A;
+  --accent: #B33A3A;
+  --accent-dim: #8A2C2C;
+  --risk-low: #7A8450;
+  --risk-medium: #C68A3D;
+  --risk-high: #D14E3E;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Archivo', sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Fine grain texture so the flat color doesn't read as a flat AI gradient */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Slow scanning light sweep, like a document scanner passing over the page */
+body::after {
+  content: "";
+  position: fixed;
+  left: 0; right: 0;
+  top: -220px;
+  height: 220px;
+  background: linear-gradient(180deg, transparent 0%, rgba(179,58,58,0.07) 50%, transparent 100%);
+  animation: scan 9s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes scan {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(calc(100vh + 220px)); }
+}
+
+.topbar, .auth-wrap, .main {
+  position: relative;
+  z-index: 2;
+}
+
+.mono { font-family: 'Archivo Mono', monospace; }
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.brand span { color: var(--accent); }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+/* Buttons */
+.btn {
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 3px;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #F2E8D8;
+}
+.btn-primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+.link:hover { text-decoration: underline; }
+
+/* Auth pages */
+.auth-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-left: 12%;
+}
+.fingerprint-deco {
+  position: fixed;
+  right: -60px;
+  bottom: -60px;
+  width: 520px;
+  height: 520px;
+  opacity: 0.06;
+  z-index: 0;
+  pointer-events: none;
+}
+.auth-card {
+  width: 360px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 36px 32px;
+  position: relative;
+  z-index: 2;
+  animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.auth-card h1 {
+  font-size: 22px;
+  margin: 0 0 4px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.auth-card .sub {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin: 0 0 28px;
+}
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: 'Archivo Mono', monospace;
+  font-size: 14px;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.auth-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+.auth-actions .btn { flex: 1; }
+.status-msg {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+  min-height: 18px;
+}
+
+/* Main content */
+.main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px;
+}
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin: 0 0 16px;
+}
+
+/* Case card */
+.case {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+  animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.case.status-analyzed { border-left-color: var(--accent); }
+.case::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 16px 16px 0;
+  border-color: transparent var(--bg) transparent transparent;
+}
+
+.case-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.case-name { font-size: 15px; font-weight: 600; }
+.case-id { font-size: 12px; color: var(--text-dim); }
+.case-status {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: capitalize;
+}
+
+.risk-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-top: 10px;
+}
+.risk-low { background: rgba(95,167,119,0.15); color: var(--risk-low); }
+.risk-medium { background: rgba(217,164,65,0.15); color: var(--risk-medium); }
+.risk-high { background: rgba(193,73,61,0.15); color: var(--risk-high); }
+
+.case-summary {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.case-timeline {
+  margin-top: 10px;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: 'Archivo Mono', monospace;
+}
+.case-timeline li { margin-bottom: 4px; }
+
+.empty-state {
+  color: var(--text-dim);
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+/* Upload page */
+.upload-box {
+  background: var(--panel);
+  border: 1px dashed var(--panel-border);
+  border-radius: 4px;
+  padding: 40px 24px;
+  text-align: center;
+}
+.upload-box input[type="file"] {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
